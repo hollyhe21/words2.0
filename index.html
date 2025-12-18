@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词拼拼乐 - 英语学习游戏</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            color: #333;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 25px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #2575fc, #6a11cb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2575fc;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+            border-left: 6px solid #6a11cb;
+        }
+        
+        .translation {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .phonetic {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+        
+        .answer-slots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .slot {
+            width: 70px;
+            height: 70px;
+            border: 3px dashed #6a11cb;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+        }
+        
+        .slot.filled {
+            border: 3px solid #2575fc;
+            background-color: #e3f2fd;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 10px rgba(37, 117, 252, 0.2);
+        }
+        
+        .slot.correct {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        
+        .slot.incorrect {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        
+        .letter-bank {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .letter {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(145deg, #6a11cb, #2575fc);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            box-shadow: 0 6px 0 #4a0da3, 0 8px 10px rgba(0,0,0,0.15);
+        }
+        
+        .letter:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 #4a0da3, 0 10px 15px rgba(0,0,0,0.2);
+        }
+        
+        .letter:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #4a0da3, 0 4px 6px rgba(0,0,0,0.15);
+        }
+        
+        .letter.used {
+            background: linear-gradient(145deg, #b0b0b0, #8a8a8a);
+            box-shadow: 0 4px 0 #6a6a6a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(to right, #f46b45, #eea849);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .timer-container {
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        .timer {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+            padding: 12px 25px;
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        
+        .timer-danger {
+            color: #dc3545;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .keyboard-hint {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        
+        .app-inventor-info {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 6px solid #ff7e5f;
+        }
+        
+        .app-inventor-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .ai-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .ai-component {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        
+        .ai-label {
+            font-weight: bold;
+            color: #2575fc;
+        }
+        
+        .ai-desc {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .letter, .slot {
+                width: 55px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.5s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background-color: #dc3545;
+        }
+        
+        /* 加载指示器 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+        
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* App Inventor API信息 */
+        .api-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+            border-left: 4px solid #28a745;
+        }
+        
+        .api-info h4 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        
+        .github-info {
+            background: #24292e;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+        }
+        
+        .github-info a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载指示器 -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <h2>单词拼拼乐</h2>
+            <p>游戏加载中...</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-spell-check"></i> 单词拼拼乐</h1>
+            <p class="subtitle">点击字母填空 · 每题30秒 · 学习英语趣味多</p>
+        </header>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-label">答对次数</div>
+                <div class="stat-value" id="correct-count">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">总用时</div>
+                <div class="stat-value" id="total-time">00:00</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">当前进度</div>
+                <div class="stat-value" id="progress">1/10</div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="question-card">
+                <div class="translation" id="chinese-translation">一种水果，通常是红色或绿色，很甜</div>
+                <div class="phonetic" id="phonetic">/ˈæp.əl/</div>
+                
+                <div class="answer-slots" id="answer-slots">
+                    <!-- 字母槽将由JS动态生成 -->
+                </div>
+                
+                <div class="letter-bank" id="letter-bank">
+                    <!-- 字母按钮将由JS动态生成 -->
+                </div>
+                
+                <div class="timer-container">
+                    <div class="timer" id="question-timer">30秒</div>
+                </div>
+                
+                <div class="keyboard-hint">
+                    <i class="fas fa-info-circle"></i> 提示：支持触摸屏点击和键盘输入（字母键、Backspace、Enter、空格）
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-secondary" id="withdraw-btn">
+                    <i class="fas fa-undo"></i> 撤回
+                </button>
+                <button class="btn btn-primary" id="speak-btn">
+                    <i class="fas fa-volume-up"></i> 发音
+                </button>
+                <button class="btn btn-success" id="submit-btn">
+                    <i class="fas fa-check-circle"></i> 提交
+                </button>
+                <button class="btn btn-warning" id="next-btn" disabled>
+                    <i class="fas fa-forward"></i> 下一题
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">答案正确！</div>
+    
+    <script>
+        // 隐藏加载指示器
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loader').style.display = 'none';
+                }, 500);
+            }, 1000);
+            
+            // 通知App Inventor游戏已加载
+            if (window.parent !== window) {
+                window.parent.postMessage('GameLoaded', '*');
+            }
+        });
+        
+        // 单词数据库
+        const wordList = [
+            { word: "APPLE", chinese: "一种水果，通常是红色或绿色，很甜", phonetic: "/ˈæp.əl/" },
+            { word: "HOUSE", chinese: "人们居住的建筑物", phonetic: "/haʊs/" },
+            { word: "SCHOOL", chinese: "学生学习的地方", phonetic: "/skuːl/" },
+            { word: "COMPUTER", chinese: "用于处理数据的电子设备", phonetic: "/kəmˈpjuː.tər/" },
+            { word: "WATER", chinese: "无色透明的液体，生命之源", phonetic: "/ˈwɔː.tər/" },
+            { word: "FRIEND", chinese: "与你关系好的人，朋友", phonetic: "/frend/" },
+            { word: "MUSIC", chinese: "由声音组成的艺术形式", phonetic: "/ˈmjuː.zɪk/" },
+            { word: "BOOK", chinese: "由纸张装订而成，用于阅读", phonetic: "/bʊk/" },
+            { word: "SUN", chinese: "太阳，提供光和热的恒星", phonetic: "/sʌn/" },
+            { word: "HAPPY", chinese: "感到高兴或满足的情绪", phonetic: "/ˈhæp.i/" }
+        ];
+        
+        // 游戏状态
+        let gameState = {
+            currentWordIndex: 0,
+            correctAnswers: 0,
+            totalTime: 0, // 秒
+            questionTimeLeft: 30,
+            totalTimer: null,
+            questionTimer: null,
+            currentAnswer: [],
+            scrambledLetters: [],
+            isGameActive: false,
+            gameCompleted: false
+        };
+        
+        // DOM元素
+        const chineseTranslation = document.getElementById('chinese-translation');
+        const phonetic = document.getElementById('phonetic');
+        const answerSlots = document.getElementById('answer-slots');
+        const letterBank = document.getElementById('letter-bank');
+        const correctCount = document.getElementById('correct-count');
+        const totalTime = document.getElementById('total-time');
+        const progress = document.getElementById('progress');
+        const questionTimer = document.getElementById('question-timer');
+        const speakBtn = document.getElementById('speak-btn');
+        const withdrawBtn = document.getElementById('withdraw-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const notification = document.getElementById('notification');
+        
+        // ================================
+        // App Inventor API 函数
+        // ================================
+        
+        // 获取游戏分数
+        window.getGameScore = function() {
+            return {
+                correct: gameState.correctAnswers,
+                total: wordList.length,
+                current: gameState.currentWordIndex + 1,
+                time: gameState.totalTime,
+                timeLeft: gameState.questionTimeLeft
+            };
+        };
+        
+        // 获取完整游戏状态
+        window.getGameStatus = function() {
+            const currentWordData = wordList[gameState.currentWordIndex] || {};
+            return {
+                isActive: gameState.isGameActive,
+                isCompleted: gameState.gameCompleted,
+                currentWord: currentWordData.word || "",
+                chinese: currentWordData.chinese || "",
+                phonetic: currentWordData.phonetic || "",
+                answer: gameState.currentAnswer.join(''),
+                timeLeft: gameState.questionTimeLeft,
+                correctAnswers: gameState.correctAnswers,
+                totalQuestions: wordList.length,
+                currentQuestion: gameState.currentWordIndex + 1
+            };
+        };
+        
+        // 获取简化状态（推荐用于App Inventor）
+        window.getSimpleStatus = function() {
+            return {
+                isActive: gameState.isGameActive,
+                isCompleted: gameState.gameCompleted,
+                canSubmit: !submitBtn.disabled && gameState.isGameActive,
+                canNext: !nextBtn.disabled,
+                canWithdraw: gameState.isGameActive && gameState.currentAnswer.some(l => l !== ''),
+                canSpeak: true,
+                currentQuestion: gameState.currentWordIndex + 1,
+                totalQuestions: wordList.length,
+                correctAnswers: gameState.correctAnswers,
+                timeLeft: gameState.questionTimeLeft
+            };
+        };
+        
+        // 检查按钮状态
+        window.checkButtonStatus = function() {
+            return {
+                canSubmit: !submitBtn.disabled && gameState.isGameActive,
+                canNext: !nextBtn.disabled,
+                canWithdraw: gameState.isGameActive && gameState.currentAnswer.some(l => l !== ''),
+                canSpeak: true
+            };
+        };
+        
+        // 重新开始游戏
+        window.restartGame = function() {
+            gameState = {
+                currentWordIndex: 0,
+                correctAnswers: 0,
+                totalTime: 0,
+                questionTimeLeft: 30,
+                totalTimer: null,
+                questionTimer: null,
+                currentAnswer: [],
+                scrambledLetters: [],
+                isGameActive: false,
+                gameCompleted: false
+            };
+            
+            clearInterval(gameState.totalTimer);
+            clearInterval(gameState.questionTimer);
+            
+            initGame();
+            
+            // 触发状态变化事件
+            dispatchGameStateChanged();
+            dispatchButtonStateChanged();
+            
+            return "游戏已重新开始";
+        };
+        
+        // ================================
+        // 游戏核心函数
+        // ================================
+        
+        // 触发游戏状态变化事件
+        function dispatchGameStateChanged() {
+            const event = new CustomEvent('GameStateChanged', {
+                detail: window.getGameStatus()
+            });
+            window.dispatchEvent(event);
+            
+            // 通知父窗口（App Inventor）
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GameStateChanged',
+                    data: window.getGameStatus()
+                }, '*');
+            }
+        }
+        
+        // 触发按钮状态变化事件
+        function dispatchButtonStateChanged() {
+            const event = new CustomEvent('ButtonStateChanged', {
+                detail: window.checkButtonStatus()
+            });
+            window.dispatchEvent(event);
+            
+            // 通知父窗口（App Inventor）
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'ButtonStateChanged',
+                    data: window.checkButtonStatus()
+                }, '*');
+            }
+        }
+        
+        // 更新按钮状态并触发事件
+        function updateButtonStates() {
+            dispatchButtonStateChanged();
+            dispatchGameStateChanged();
+        }
+        
+        // 初始化游戏
+        function initGame() {
+            loadWord(gameState.currentWordIndex);
+            updateStats();
+            startTotalTimer();
+            startQuestionTimer();
+            
+            // 初始发音
+            setTimeout(() => {
+                speakCurrentWord();
+            }, 500);
+            
+            // 通知状态变化
+            updateButtonStates();
+        }
+        
+        // 加载单词
+        function loadWord(index) {
+            const wordData = wordList[index];
+            const word = wordData.word;
+            
+            // 显示翻译和音标
+            chineseTranslation.textContent = wordData.chinese;
+            phonetic.textContent = wordData.phonetic;
+            
+            // 创建答案槽
+            answerSlots.innerHTML = '';
+            gameState.currentAnswer = new Array(word.length).fill('');
+            
+            for (let i = 0; i < word.length; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.dataset.index = i;
+                answerSlots.appendChild(slot);
+            }
+            
+            // 创建乱序字母
+            gameState.scrambledLetters = scrambleLetters(word);
+            letterBank.innerHTML = '';
+            
+            gameState.scrambledLetters.forEach((letter, index) => {
+                const letterBtn = document.createElement('div');
+                letterBtn.className = 'letter';
+                letterBtn.textContent = letter;
+                letterBtn.dataset.index = index;
+                letterBtn.addEventListener('click', () => selectLetter(letter, index));
+                letterBank.appendChild(letterBtn);
+            });
+            
+            // 更新进度
+            progress.textContent = `${index + 1}/${wordList.length}`;
+            
+            // 重置问题计时器
+            gameState.questionTimeLeft = 30;
+            updateQuestionTimerDisplay();
+            
+            // 启用/禁用按钮
+            submitBtn.disabled = false;
+            nextBtn.disabled = true;
+            withdrawBtn.disabled = false;
+            speakBtn.disabled = false;
+            
+            gameState.isGameActive = true;
+            gameState.gameCompleted = false;
+            
+            // 通知状态变化
+            updateButtonStates();
+        }
+        
+        // 打乱字母顺序
+        function scrambleLetters(word) {
+            let letters = word.split('');
+            for (let i = letters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [letters[i], letters[j]] = [letters[j], letters[i]];
+            }
+            return letters;
+        }
+        
+        // 选择字母
+        function selectLetter(letter, index) {
+            if (!gameState.isGameActive) return;
+            
+            // 找到第一个空槽
+            const emptySlotIndex = gameState.currentAnswer.indexOf('');
+            if (emptySlotIndex === -1) {
+                showNotification("所有空格已填满！请先提交或撤回", "error");
+                return;
+            }
+            
+            // 填充答案槽
+            gameState.currentAnswer[emptySlotIndex] = letter;
+            const slot = answerSlots.children[emptySlotIndex];
+            slot.textContent = letter;
+            slot.classList.add('filled');
+            
+            // 禁用已使用的字母
+            const letterBtn = letterBank.children[index];
+            letterBtn.classList.add('used');
+            letterBtn.style.pointerEvents = 'none';
+            
+            // 检查是否已填满所有槽
+            checkIfAllFilled();
+            
+            // 通知状态变化
+            updateButtonStates();
+        }
+        
+        // 检查是否所有槽都已填满
+        function checkIfAllFilled() {
+            const isFilled = gameState.currentAnswer.every(letter => letter !== '');
+            if (isFilled) {
+                submitBtn.focus();
+            }
+        }
+        
+        // 撤回上一个字母
+        function withdrawLastLetter() {
+            if (!gameState.isGameActive) return;
+            
+            // 找到最后一个非空槽
+            let lastFilledIndex = -1;
+            for (let i = gameState.currentAnswer.length - 1; i >= 0; i--) {
+                if (gameState.currentAnswer[i] !== '') {
+                    lastFilledIndex = i;
+                    break;
+                }
+            }
+            
+            if (lastFilledIndex === -1) {
+                showNotification("没有可以撤回的字母", "error");
+                return;
+            }
+            
+            // 获取被撤回的字母
+            const withdrawnLetter = gameState.currentAnswer[lastFilledIndex];
+            
+            // 清空答案槽
+            gameState.currentAnswer[lastFilledIndex] = '';
+            const slot = answerSlots.children[lastFilledIndex];
+            slot.textContent = '';
+            slot.classList.remove('filled');
+            
+            // 重新启用对应的字母按钮
+            for (let i = 0; i < letterBank.children.length; i++) {
+                const letterBtn = letterBank.children[i];
+                if (letterBtn.textContent === withdrawnLetter && letterBtn.classList.contains('used')) {
+                    letterBtn.classList.remove('used');
+                    letterBtn.style.pointerEvents = 'auto';
+                    break;
+                }
+            }
+            
+            submitBtn.disabled = false;
+            
+            // 通知状态变化
+            updateButtonStates();
+        }
+        
+        // 提交答案
+        function submitAnswer() {
+            if (!gameState.isGameActive) return;
+            
+            const currentWord = wordList[gameState.currentWordIndex].word;
+            const userAnswer = gameState.currentAnswer.join('');
+            
+            // 检查答案
+            const isCorrect = userAnswer === currentWord;
+            
+            // 显示结果
+            for (let i = 0; i < answerSlots.children.length; i++) {
+                const slot = answerSlots.children[i];
+                const correctLetter = currentWord[i];
+                const userLetter = gameState.currentAnswer[i];
+                
+                if (userLetter === correctLetter) {
+                    slot.classList.add('correct');
+                } else {
+                    slot.classList.add('incorrect');
+                }
+            }
+            
+            // 禁用所有字母按钮和提交按钮
+            Array.from(letterBank.children).forEach(btn => {
+                btn.classList.add('used');
+                btn.style.pointerEvents = 'none';
+            });
+            
+            submitBtn.disabled = true;
+            nextBtn.disabled = false;
+            gameState.isGameActive = false;
+            
+            // 停止问题计时器
+            clearInterval(gameState.questionTimer);
+            
+            // 更新答对次数
+            if (isCorrect) {
+                gameState.correctAnswers++;
+                correctCount.textContent = gameState.correctAnswers;
+                showNotification("答案正确！太棒了！");
+                
+                // 答对后自动发音
+                setTimeout(() => {
+                    speakCurrentWord();
+                }, 800);
+            } else {
+                showNotification(`正确答案是: ${currentWord}`, "error");
+            }
+            
+            // 启用下一题按钮
+            nextBtn.focus();
+            
+            // 通知状态变化
+            updateButtonStates();
+        }
+        
+        // 下一题
+        function nextQuestion() {
+            gameState.currentWordIndex++;
+            
+            if (gameState.currentWordIndex >= wordList.length) {
+                // 游戏结束
+                gameState.gameCompleted = true;
+                showNotification(`游戏结束！您答对了 ${gameState.correctAnswers} 个单词，总用时 ${formatTime(gameState.totalTime)}`);
+                
+                // 禁用所有按钮
+                submitBtn.disabled = true;
+                nextBtn.disabled = true;
+                withdrawBtn.disabled = true;
+                speakBtn.disabled = false;
+                
+                // 停止总计时器
+                clearInterval(gameState.totalTimer);
+                
+                // 通知状态变化
+                updateButtonStates();
+                return;
+            }
+            
+            loadWord(gameState.currentWordIndex);
+            startQuestionTimer();
+            
+            // 通知状态变化
+            updateButtonStates();
+        }
+        
+        // 开始总计时器
+        function startTotalTimer() {
+            gameState.totalTimer = setInterval(() => {
+                gameState.totalTime++;
+                totalTime.textContent = formatTime(gameState.totalTime);
+                
+                // 每5秒通知一次状态变化（避免过于频繁）
+                if (gameState.totalTime % 5 === 0) {
+                    updateButtonStates();
+                }
+            }, 1000);
+        }
+        
+        // 开始问题计时器
+        function startQuestionTimer() {
+            // 清除之前的计时器
+            if (gameState.questionTimer) {
+                clearInterval(gameState.questionTimer);
+            }
+            
+            gameState.questionTimeLeft = 30;
+            updateQuestionTimerDisplay();
+            
+            gameState.questionTimer = setInterval(() => {
+                gameState.questionTimeLeft--;
+                updateQuestionTimerDisplay();
+                
+                if (gameState.questionTimeLeft <= 0) {
+                    clearInterval(gameState.questionTimer);
+                    timeUp();
+                }
+            }, 1000);
+        }
+        
+        // 更新时间显示
+        function updateQuestionTimerDisplay() {
+            questionTimer.textContent = `${gameState.questionTimeLeft}秒`;
+            
+            if (gameState.questionTimeLeft <= 10) {
+                questionTimer.classList.add('timer-danger');
+            } else {
+                questionTimer.classList.remove('timer-danger');
+            }
+        }
+        
+        // 时间到
+        function timeUp() {
+            if (!gameState.isGameActive) return;
+            
+            showNotification("时间到！", "error");
+            submitAnswer();
+        }
+        
+        // 发音当前单词
+        function speakCurrentWord() {
+            const word = wordList[gameState.currentWordIndex].word;
+            speakWord(word);
+        }
+        
+        // 使用在线API发音
+        function speakWord(word) {
+            // 通知App Inventor开始发音
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'SpeakWord',
+                    word: word
+                }, '*');
+            }
+            
+            // 同时使用网页发音
+            const audioSources = [
+                `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(word)}`,
+                `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`
+            ];
+            
+            let currentSourceIndex = 0;
+            
+            function tryNextSource() {
+                if (currentSourceIndex >= audioSources.length) return;
+                
+                const audio = new Audio(audioSources[currentSourceIndex]);
+                audio.play().catch(e => {
+                    currentSourceIndex++;
+                    tryNextSource();
+                });
+            }
+            
+            tryNextSource();
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            correctCount.textContent = gameState.correctAnswers;
+            totalTime.textContent = formatTime(gameState.totalTime);
+            progress.textContent = `${gameState.currentWordIndex + 1}/${wordList.length}`;
+        }
+        
+        // 格式化时间
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // 显示通知
+        function showNotification(message, type = "success") {
+            notification.textContent = message;
+            notification.className = "notification";
+            notification.classList.add(type === "error" ? "error" : "show");
+            
+            setTimeout(() => {
+                notification.classList.add("show");
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove("show");
+            }, 3000);
+        }
+        
+        // ================================
+        // 事件监听器
+        // ================================
+        
+        // 键盘支持
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.isGameActive && e.key !== ' ') return;
+            
+            const key = e.key.toUpperCase();
+            
+            // 字母键输入
+            if (/^[A-Z]$/.test(key)) {
+                // 找到第一个可用的字母按钮
+                for (let i = 0; i < letterBank.children.length; i++) {
+                    const letterBtn = letterBank.children[i];
+                    if (letterBtn.textContent === key && !letterBtn.classList.contains('used')) {
+                        selectLetter(key, i);
+                        break;
+                    }
+                }
+            }
+            
+            // 退格键撤回
+            if (e.key === 'Backspace') {
+                withdrawLastLetter();
+            }
+            
+            // 回车键提交
+            if (e.key === 'Enter') {
+                if (!submitBtn.disabled) {
+                    submitAnswer();
+                } else if (!nextBtn.disabled) {
+                    nextQuestion();
+                }
+            }
+            
+            // 空格键发音
+            if (e.key === ' ') {
+                speakCurrentWord();
+                e.preventDefault(); // 防止页面滚动
+            }
+        });
+        
+        // 按钮事件监听
+        speakBtn.addEventListener('click', speakCurrentWord);
+        withdrawBtn.addEventListener('click', withdrawLastLetter);
+        submitBtn.addEventListener('click', submitAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+        
+        // 触摸屏优化 - 防止长按出现菜单
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.classList.contains('letter') || 
+                e.target.classList.contains('btn') || 
+                e.target.classList.contains('slot')) {
+                e.preventDefault();
+            }
+        });
+        
+        // 监听来自App Inventor的消息
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'AppInventorCommand') {
+                switch(event.data.command) {
+                    case 'withdraw':
+                        withdrawLastLetter();
+                        break;
+                    case 'speak':
+                        speakCurrentWord();
+                        break;
+                    case 'submit':
+                        submitAnswer();
+                        break;
+                    case 'next':
+                        nextQuestion();
+                        break;
+                    case 'restart':
+                        restartGame();
+                        break;
+                    case 'getStatus':
+                        // 发送状态回App Inventor
+                        if (window.parent !== window) {
+                            window.parent.postMessage({
+                                type: 'GameStatus',
+                                data: window.getSimpleStatus()
+                            }, '*');
+                        }
+                        break;
+                }
+            }
+        });
+        
+        // 初始化游戏
+        window.addEventListener('DOMContentLoaded', function() {
+            // 添加移动端检测
+            if ('ontouchstart' in window || navigator.maxTouchPoints) {
+                document.body.classList.add('touch-device');
+            }
+            
+            initGame();
+            
+            // 输出API信息供App Inventor使用
+            console.log("单词拼拼乐 v2.1 已加载完成！");
+            console.log("App Inventor可用API:");
+            console.log("- getGameScore() - 获取游戏分数");
+            console.log("- getGameStatus() - 获取游戏状态");
+            console.log("- getSimpleStatus() - 获取简化状态（推荐）");
+            console.log("- checkButtonStatus() - 检查按钮状态");
+            console.log("- restartGame() - 重新开始游戏");
+            console.log("监听事件: 'GameStateChanged', 'ButtonStateChanged'");
+        });
+    </script>
+</body>
+</html>
